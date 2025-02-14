@@ -19,20 +19,18 @@ class Home extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView.separated(
+      body: GridView.builder(
         itemCount: 100,
-        padding: const EdgeInsets.all(16),
-        separatorBuilder: (context, index) => const SizedBox(height: 16),
+        padding: const EdgeInsets.all(32),
+        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: 200,
+          mainAxisSpacing: 32,
+          crossAxisSpacing: 32,
+        ),
         itemBuilder:
             (context, index) => PointerTarget(
               key: GlobalObjectKey('item $index'),
-              child: Card(
-                child: ListTile(
-                  title: Text('Item $index'),
-                  subtitle: const Text('Subtitle'),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                ),
-              ),
+              child: Card(child: Center(child: Text('Item $index'))),
             ),
       ),
     );
