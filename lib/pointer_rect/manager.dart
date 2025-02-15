@@ -18,22 +18,21 @@ class PointerRectManager extends StatefulWidget {
 }
 
 class _PointerRectManagerState extends State<PointerRectManager> {
-  (GlobalKey key, Rect rect)? currentTarget;
+  (GlobalKey key, RRect rect)? currentTarget;
 
   Offset? _pointerPosition;
 
-  Rect? get _rectToDisplay =>
-      currentTarget?.$2 ??
-      switch (_pointerPosition) {
-        final position? => Rect.fromCenter(
-          center: position,
-          width: 16,
-          height: 16,
-        ),
-        _ => null,
-      };
+  RRect? get _rectToDisplay => currentTarget?.$2 ?? _pointerRect;
 
-  void addTarget(GlobalKey key, Rect rect) {
+  RRect? get _pointerRect => switch (_pointerPosition) {
+    final position? => RRect.fromRectAndRadius(
+      Rect.fromCenter(center: position, width: 16, height: 16),
+      const Radius.circular(8),
+    ),
+    _ => null,
+  };
+
+  void addTarget(GlobalKey key, RRect rect) {
     setState(() => currentTarget = (key, rect));
   }
 
@@ -43,7 +42,7 @@ class _PointerRectManagerState extends State<PointerRectManager> {
     }
   }
 
-  void updateTarget(GlobalKey key, Rect rect) {
+  void updateTarget(GlobalKey key, RRect rect) {
     if (currentTarget?.$1 == key) {
       setState(() => currentTarget = (key, rect));
     }
@@ -65,11 +64,23 @@ class _PointerRectManagerState extends State<PointerRectManager> {
           ),
           if (_rectToDisplay case final rect?)
             AnimatedPositioned.fromRect(
-              rect: rect,
+              rect: rect.outerRect,
               duration: Durations.short4,
               curve: Curves.easeInOutCubicEmphasized,
               child: IgnorePointer(
-                child: ColoredBox(color: Colors.red.withValues(alpha: 0.25)),
+                child: AnimatedContainer(
+                  duration: Durations.short4,
+                  curve: Curves.easeInOutCubicEmphasized,
+                  decoration: BoxDecoration(
+                    color: Colors.red.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.only(
+                      topLeft: rect.tlRadius,
+                      topRight: rect.trRadius,
+                      bottomLeft: rect.blRadius,
+                      bottomRight: rect.brRadius,
+                    ),
+                  ),
+                ),
               ),
             ),
         ],
@@ -87,9 +98,9 @@ class InheritedPointerRectManager extends InheritedWidget {
     required super.child,
   });
 
-  final void Function(GlobalKey key, Rect rect) addTarget;
+  final void Function(GlobalKey key, RRect rect) addTarget;
   final void Function(Key key) removeTarget;
-  final void Function(GlobalKey key, Rect rect) updateTarget;
+  final void Function(GlobalKey key, RRect rect) updateTarget;
 
   @override
   bool updateShouldNotify(covariant InheritedWidget oldWidget) =>

@@ -30,7 +30,15 @@ class Home extends StatelessWidget {
         itemBuilder:
             (context, index) => PointerTarget(
               key: GlobalObjectKey('item $index'),
-              child: Card(child: Center(child: Text('Item $index'))),
+              rectBuilder:
+                  (rect) => RRect.fromRectAndRadius(
+                    rect.inflate(8),
+                    const Radius.circular(20),
+                  ),
+              child: Card.filled(
+                margin: EdgeInsets.zero,
+                child: Center(child: Text('Item $index')),
+              ),
             ),
       ),
     );

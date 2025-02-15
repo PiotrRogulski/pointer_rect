@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:pointer_rect/pointer_rect/manager.dart';
 
 class PointerTarget extends StatefulWidget {
-  const PointerTarget({required GlobalKey super.key, required this.child});
+  const PointerTarget({
+    required GlobalKey super.key,
+    this.rectBuilder,
+    required this.child,
+  });
 
+  final RRect Function(Rect rect)? rectBuilder;
   final Widget child;
 
   @override
@@ -37,9 +42,11 @@ class _PointerTargetState extends State<PointerTarget> {
     manager.updateTarget(key, _rect);
   }
 
-  Rect get _rect {
-    final renderBox = key.currentContext!.findRenderObject()! as RenderBox;
-    return renderBox.localToGlobal(Offset.zero) & renderBox.size;
+  RRect get _rect {
+    final renderBox = context.findRenderObject()! as RenderBox;
+    final rect = renderBox.localToGlobal(Offset.zero) & renderBox.size;
+    return widget.rectBuilder?.call(rect) ??
+        RRect.fromRectAndRadius(rect, Radius.zero);
   }
 
   @override
